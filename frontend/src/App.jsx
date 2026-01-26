@@ -9,6 +9,7 @@ import OwnerDashboard from './pages/OwnerDashboard';
 import UserDashboard from './pages/UserDashboard';
 import PGDetails from './pages/PGDetails';
 import DonorDashboard from './pages/DonorDashboard';
+import About from './pages/About';
 import { AuthProvider } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -30,6 +31,7 @@ function App() {
               <Route path="/pg/:id" element={<PGDetails />} />
               <Route path="/user-dashboard" element={<UserDashboard />} />
               <Route path="/donor-dashboard" element={<DonorDashboard />} />
+              <Route path="/about" element={<About />} />
             </Routes>
           </main>
           <Footer />

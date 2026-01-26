@@ -37,6 +37,27 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @PutMapping("/me")
+    public ResponseEntity<User> updateCurrentUser(@RequestBody User userDetails) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        
+        return userRepository.findByUsername(username)
+                .map(user -> {
+                    if (userDetails.getUsername() != null && !userDetails.getUsername().isEmpty()) {
+                        user.setUsername(userDetails.getUsername());
+                    }
+                    if (userDetails.getEmail() != null) {
+                        user.setEmail(userDetails.getEmail());
+                    }
+                    if (userDetails.getPhoneNumber() != null) {
+                        user.setPhoneNumber(userDetails.getPhoneNumber());
+                    }
+                    // Password update should be handled separately for security
+                    return ResponseEntity.ok(userRepository.save(user));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 
     @PutMapping("/sponsorship")
     public ResponseEntity<User> updateSponsorship(@RequestBody Map<String, Double> payload) {

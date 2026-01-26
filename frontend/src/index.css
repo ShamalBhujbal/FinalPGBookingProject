@@ -1,21 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --secondary: #0f172a;
-  --accent: #f59e0b;
+  /* Premium Real Estate / Hospitality Palette */
+  --primary: #0f766e;
+  /* Deep Teal - Trustworthy & Elegant */
+  --primary-hover: #115e59;
+  /* Darker Teal */
+  --primary-light: #ccfbf1;
+  /* Light Teal Background */
+  --secondary: #1e293b;
+  /* Slate 800 - Strong neutral */
+  --accent: #d97706;
+  /* Amber 600 - Rich Gold accent */
+
   --background: #f8fafc;
+  /* Slate 50 - Cool neutral background */
   --surface: #ffffff;
-  --text-main: #1e293b;
+
+  --text-main: #0f172a;
+  /* Slate 900 - Sharp text */
   --text-muted: #64748b;
-  --border: #e2e8f0;
-  --success: #10b981;
-  --error: #ef4444;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --radius: 0.75rem;
+  /* Slate 500 - Softer secondary text */
+
+  --border: #cbd5e1;
+  /* Slate 300 - Distinct but soft borders */
+
+  --success: #059669;
+  /* Emerald 600 */
+  --error: #dc2626;
+  /* Red 600 */
+
+  /* Modern soft shadows */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  --radius: 12px;
+  /* Slightly more rounded for friendly feel */
 }
 
 * {

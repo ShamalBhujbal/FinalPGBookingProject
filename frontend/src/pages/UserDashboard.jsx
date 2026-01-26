@@ -2,12 +2,20 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { FaUserCircle, FaCalendarAlt, FaMoneyBillWave, FaMapMarkerAlt, FaClock, FaCheckCircle, FaTimesCircle, FaHandHoldingHeart, FaEdit } from 'react-icons/fa';
 
 const UserDashboard = () => {
     const { user: authUser } = useAuth();
     const [user, setUser] = useState(authUser);
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        username: '',
+        email: '',
+        phoneNumber: ''
+    });
 
     useEffect(() => {
         if (authUser) {
@@ -20,17 +28,68 @@ const UserDashboard = () => {
         try {
             const response = await api.get('/users/me');
             setUser(response.data);
+            setEditFormData({
+                username: response.data.username || '',
+                email: response.data.email || '',
+                phoneNumber: response.data.phoneNumber || ''
+            });
         } catch (error) {
             console.error('Error fetching user details:', error);
         }
     };
 
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await api.put('/users/me', editFormData);
+            setUser(response.data);
+            setIsEditingProfile(false);
+            toast.success("Profile updated successfully!");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to update profile.");
+        }
+    };
+
+    const handleInputChange = (e) => {
+        setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+    };
+
+    // ... (keep fetchBookings and other helpers)
+
+    // ... (keep getStatusConfig and other render helpers)
+
+    // (Inside return, update header and add modal)
+    // We'll replace the return block fully in the next instruction chunk due to tool limits or try to target specific blocks. 
+    // Since I can't do multiple disjoint edits easily in one go without multi_replace, and I want to be safe,
+    // I will use replace_file_content on the component body.
+
+    // Actually, I should use the multi_replace tool or just one big replace.
+    // Let's scroll down to where I can inject the modal and button.
+
+    // I'll start by adding the state and handlers in the beginning of the component.
+    // Then I'll update the header to include the edit button.
+    // Then I'll add the modal at the end.
+
+    // LIMITATION: 'replace_file_content' replaces a CONTIGUOUS block.
+    // I can't easily add state at top AND modal at bottom in one go without replacing everything in between (which is huge).
+    // I must use `multi_replace_file_content`!
+
+    // Let's use `multi_replace_file_content` for this.
+    // 1. Insert State & Handlers after `const [loading, setLoading] = ...`
+    // 2. Insert Edit Button in Header.
+    // 3. Insert Modal at end of JSX.
+
+    // Wait, I need to check where `fetchUserDetails` is to update it to set `editFormData`.
+
+    // Let's just do a big replace of the component body or use multi-replace.
+    // multi_replace is safer for preserving code I don't want to touch.
+
+
     const fetchBookings = async () => {
         try {
             const response = await api.get('/bookings/my-bookings');
-            // Filter bookings that are either CONFIRMED, REQUESTING_AID, or APPROVED_AID
-            const visibleBookings = response.data; // Show all to be safe or filter status
-            setBookings(visibleBookings);
+            setBookings(response.data);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching bookings:', error);
@@ -38,7 +97,6 @@ const UserDashboard = () => {
         }
     };
 
-    // Keep existing helper functions...
     const calculateDeadline = (bookingDate) => {
         if (!bookingDate) return 'N/A';
         const date = new Date(bookingDate);
@@ -58,7 +116,6 @@ const UserDashboard = () => {
     };
 
     const handleCancel = async (bookingId) => {
-        // ... (existing code)
         if (window.confirm('Are you sure you want to cancel this booking?')) {
             try {
                 await api.delete(`/bookings/${bookingId}`);
@@ -73,44 +130,17 @@ const UserDashboard = () => {
 
     const handlePayRemaining = async (booking) => {
         try {
-            // Calculate amount minus contribution
             let amount = booking.pg.price;
             if (booking.donorContribution) {
                 amount = amount - booking.donorContribution;
             }
 
-            // Ensure amount is valid
-            if (amount <= 0) {
-                // If fully sponsored?
-                // Just confirm it directly via API if needed, simpler for now to assume > 0
-            }
-
-            // Standard Razorpay Flow
-            const amountInPaise = Math.round(amount * 100);
-            // Use axios for razorpay service
-            // We need to import axios if not available in this file scope, but api uses axios instance.
-            // We'll use the existing axios import if present or api instance for order creation?
-            // Home.jsx used direct axios call to port 8081 service, let's try to be consistent.
-            // But for now, I'll assume we can use the same path via proxy or direct URL.
-            // Since I can't easily import axios here without checking imports, I'll use `api` if applicable or fetch.
-            // Actually, `UserDashboard` does not import axios currently. I should check imports.
-            // Ah, wait, checking file content... imports are: useState, useEffect, api, useAuth, toast.
-            // I need to add axios import or use api. 
-            // api is the axios instance hitting backend-main.
-            // Razorpay service is separate.
-            // I'll skip the import and use `fetch` or just rely on backend proxy if I set it up?
-            // No, let's add the import in a separate edit if needed, or just assume I can use `api.get` if I changed proxy.
-            // To be safe, I'll just use `api` to call my backend which calls razorpay? No, Home.jsx calls razorpay service directly.
-            // I will use `api` (axios instance) to call the razorpay service assuming the proxy handles `/razorpay-service` or distinct port.
-            // Wait, Home.jsx imports axios.
-
-            // I will add axios to imports quickly in a separate chunk, or just use window.fetch for the payment order.
             const response = await fetch(`/razorpay-service/api/payment/create-order?amount=${amount}`, { method: 'POST' });
-            const orderId = await response.text(); // verify response format
+            const orderId = await response.text();
 
             const options = {
                 key: "rzp_test_RmhKOY4sl1EgCM",
-                amount: amountInPaise,
+                amount: Math.round(amount * 100),
                 currency: "INR",
                 name: "Area Stay Point",
                 description: `Payment for ${booking.pg.name}`,
@@ -124,37 +154,15 @@ const UserDashboard = () => {
                     name: user.name || "",
                     email: user.email || "",
                 },
-                theme: { color: "#4F46E5" }
+                theme: { color: "#0f766e" }
             };
             const rzp1 = new window.Razorpay(options);
             rzp1.open();
-
         } catch (error) {
             console.error(error);
             toast.error("Payment initiation failed");
         }
     };
-
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'CONFIRMED': return { bg: '#d1fae5', color: '#065f46', label: 'PAID & CONFIRMED' };
-            case 'REQUESTING_AID': return { bg: '#bfdbfe', color: '#1e40af', label: 'WAITING FOR DONOR' };
-            case 'APPROVED_AID': return { bg: '#fef3c7', color: '#92400e', label: 'AID APPROVED - PAY NOW' };
-            default: return { bg: '#f3f4f6', color: '#374151', label: status };
-        }
-    };
-
-    // ... render logic update in next chunk or inline here?
-    // I'll replace the fetch and helper block first.
-    // Wait, I need to replace the *mapping* logic to show the button.
-    // This tool call is replacing the fetchBookings + helpers.
-    // I will replace fetch and status helpers here.
-
-    // Actually, I am replacing a huge chunk.
-    // Let's replace `fetchBookings` and `handleCancel` and modify `getStatusBadge` (inline logic currently).
-
-    // I will return the functions.
-
 
     const handleRequestAid = async (bookingId) => {
         if (window.confirm('Do you want to request sponsorship for this booking? Your booking will be listed for donors to help.')) {
@@ -169,111 +177,243 @@ const UserDashboard = () => {
         }
     };
 
-    if (loading) return <div className="container" style={{ marginTop: '50px', textAlign: 'center' }}>Loading...</div>;
+    const getStatusConfig = (status) => {
+        switch (status) {
+            case 'CONFIRMED': return { bg: '#ecfdf5', color: '#059669', icon: <FaCheckCircle />, label: 'Confirmed' };
+            case 'REQUESTING_AID': return { bg: '#eff6ff', color: '#2563eb', icon: <FaHandHoldingHeart />, label: 'Seeking Aid' };
+            case 'APPROVED_AID': return { bg: '#fffbeb', color: '#d97706', icon: <FaMoneyBillWave />, label: 'Aid Approved' };
+            case 'PENDING': return { bg: '#fef2f2', color: '#dc2626', icon: <FaClock />, label: 'Pending Payment' };
+            default: return { bg: '#f3f4f6', color: '#4b5563', icon: <FaUserCircle />, label: status };
+        }
+    };
+
+    if (loading) return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+            <div className="loader"></div>
+        </div>
+    );
 
     return (
-        <div className="container" style={{ padding: '2rem 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h1 style={{ color: 'var(--primary)', margin: 0 }}>My Confirmed Bookings</h1>
+        <div className="container" style={{ padding: '2rem 0', maxWidth: '1200px' }}>
+            {/* Header Section */}
+            <div style={{
+                background: 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)',
+                borderRadius: '16px',
+                padding: '3rem 2rem',
+                color: 'white',
+                marginBottom: '3rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                    <div style={{
+                        background: 'rgba(255,255,255,0.2)',
+                        borderRadius: '50%',
+                        width: '80px',
+                        height: '80px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '2.5rem'
+                    }}>
+                        <FaUserCircle />
+                    </div>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <h1 style={{ margin: 0, fontSize: '2.2rem', fontWeight: 'bold' }}>Welcome back, {user?.username || 'User'}!</h1>
+                            <button
+                                onClick={() => setIsEditingProfile(true)}
+                                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '0.5rem', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Edit Profile"
+                            >
+                                <FaEdit size={16} /> {/* Need to add FaEdit to imports */}
+                            </button>
+                        </div>
+                        <p style={{ margin: '0.5rem 0 0', opacity: 0.9, fontSize: '1.1rem' }}>{user?.email}</p>
+                    </div>
+                </div>
 
-                {/* Donor Option */}
-                {user && user.roles && user.roles.includes('ROLE_DONOR') && (
-                    <a href="/donor-dashboard" className="btn btn-secondary" style={{ backgroundColor: '#2563eb', color: 'white' }}>
-                        Go to Donor Dashboard
-                    </a>
-                )}
+                {/* Quick Stats in Header */}
+                <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem', flexWrap: 'wrap' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.15)', padding: '1rem 1.5rem', borderRadius: '12px' }}>
+                        <p style={{ margin: 0, fontSize: '0.9rem', opacity: 0.8 }}>Active Bookings</p>
+                        <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{bookings.length}</p>
+                    </div>
+                    {/* Add more stats if available */}
+                </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h2 style={{ fontSize: '1.8rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <FaCalendarAlt style={{ color: '#0f766e' }} /> Your Bookings
+                </h2>
+                <a href="/" className="btn btn-primary" style={{ padding: '0.6rem 1.2rem', borderRadius: '8px' }}>+ Book New PG</a>
             </div>
 
             {bookings.length === 0 ? (
-                <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-                    <h3>No bookings found</h3>
-                    <p style={{ color: 'var(--text-muted)', margin: '1rem 0' }}>You haven't booked any PGs yet.</p>
-                    <a href="/" className="btn btn-primary">Browse PGs</a>
+                <div style={{
+                    textAlign: 'center',
+                    padding: '5rem 2rem',
+                    background: 'white',
+                    borderRadius: '16px',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                    border: '1px solid #f1f5f9'
+                }}>
+                    <div style={{ fontSize: '4rem', color: '#cbd5e1', marginBottom: '1rem' }}><FaCalendarAlt /></div>
+                    <h3 style={{ color: '#64748b' }}>No active bookings found</h3>
+                    <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>It looks quiet here. Start your journey by finding the perfect PG!</p>
+                    <a href="/" className="btn btn-outline">Explore PGs</a>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gap: '1.5rem' }}>
-                    {bookings.map((booking) => (
-                        <div key={booking.id} className="card" style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                            gap: '1.5rem',
-                            borderLeft: `5px solid ${booking.status === 'CONFIRMED' ? '#10b981' : (booking.status === 'APPROVED_AID' ? '#f59e0b' : '#3b82f6')}`
-                        }}>
-                            {/* PG Info */}
-                            <div>
-                                <h3 style={{ marginBottom: '0.5rem' }}>{booking.pg ? booking.pg.name : 'Unknown PG'}</h3>
-                                <p style={{ color: 'var(--text-muted)' }}>📍 {booking.pg ? booking.pg.address : 'Unknown Address'}</p>
-                                <p style={{ fontWeight: 'bold', marginTop: '0.5rem' }}>₹{booking.pg ? booking.pg.price : 0} / month</p>
-                                {booking.donorContribution && (
-                                    <p style={{ fontSize: '0.8rem', color: '#059669' }}>
-                                        Sponsorship: ₹{booking.donorContribution.toFixed(2)}
-                                    </p>
-                                )}
-                            </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
+                    {bookings.map((booking) => {
+                        const statusConfig = getStatusConfig(booking.status);
+                        return (
+                            <div key={booking.id} style={{
+                                background: 'white',
+                                borderRadius: '16px',
+                                overflow: 'hidden',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                border: '1px solid #f1f5f9',
+                                position: 'relative'
+                            }}
+                                className="booking-card"
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-5px)';
+                                    e.currentTarget.style.boxShadow = '0 12px 20px rgba(0,0,0,0.1)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
+                                }}
+                            >
+                                <div style={{ padding: '1.5rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: '600', color: '#1e293b' }}>
+                                            {booking.pg ? booking.pg.name : 'Unknown PG'}
+                                        </h3>
+                                        <span style={{
+                                            padding: '0.4rem 0.8rem',
+                                            borderRadius: '20px',
+                                            fontSize: '0.8rem',
+                                            fontWeight: '600',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.4rem',
+                                            backgroundColor: statusConfig.bg,
+                                            color: statusConfig.color
+                                        }}>
+                                            {statusConfig.icon} {statusConfig.label}
+                                        </span>
+                                    </div>
 
-                            {/* Booking Status */}
-                            <div>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Status</p>
-                                <span style={{
-                                    padding: '0.25rem 0.75rem',
-                                    borderRadius: '20px',
-                                    fontSize: '0.85rem',
-                                    fontWeight: 'bold',
-                                    backgroundColor: getStatusBadge(booking.status).bg,
-                                    color: getStatusBadge(booking.status).color
-                                }}>
-                                    {getStatusBadge(booking.status).label}
-                                </span>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                                    Booked on: {new Date(booking.bookingDate).toLocaleDateString()}
-                                </p>
-                                {booking.status === 'APPROVED_AID' && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', color: '#64748b', fontSize: '0.95rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <FaMapMarkerAlt style={{ color: '#94a3b8' }} />
+                                            {booking.pg ? booking.pg.address : 'Unknown Address'}
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <FaMoneyBillWave style={{ color: '#94a3b8' }} />
+                                            <span style={{ fontWeight: '600', color: '#0f172a' }}>₹{booking.pg ? booking.pg.price : 0}</span> / month
+                                        </div>
+
+                                        {booking.donorContribution && (
+                                            <div style={{ background: '#ecfdf5', padding: '0.5rem', borderRadius: '6px', color: '#059669', fontSize: '0.85rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                                <FaHandHoldingHeart /> Includes ₹{booking.donorContribution} sponsorship
+                                            </div>
+                                        )}
+
+                                        <div style={{ marginTop: '0.5rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+                                            <p style={{ margin: 0, fontSize: '0.85rem' }}>Next Rent Due</p>
+                                            <p style={{ margin: '0.2rem 0 0', fontWeight: 'bold', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <FaClock /> {calculateDeadline(booking.bookingDate)}
+                                            </p>
+                                            <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.8 }}>{calculateDaysLeft(booking.bookingDate)} days remaining</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ background: '#f8fafc', padding: '1rem 1.5rem', display: 'flex', gap: '0.8rem', borderTop: '1px solid #f1f5f9' }}>
+                                    {booking.status === 'APPROVED_AID' && (
+                                        <button className="btn btn-primary" style={{ flex: 1, fontSize: '0.9rem' }} onClick={() => handlePayRemaining(booking)}>
+                                            Pay Remainder
+                                        </button>
+                                    )}
+                                    {booking.status === 'PENDING' && (
+                                        <button className="btn btn-outline" style={{ flex: 1, fontSize: '0.9rem' }} onClick={() => handleRequestAid(booking.id)}>
+                                            Request Sponsorship
+                                        </button>
+                                    )}
+                                    <a href={`/pg/${booking.pg.id}`} className="btn btn-outline" style={{ flex: 1, textAlign: 'center', fontSize: '0.9rem' }}>Details</a>
                                     <button
-                                        className="btn btn-primary"
-                                        style={{ marginTop: '0.5rem', fontSize: '0.8rem', padding: '0.3rem 0.8rem' }}
-                                        onClick={() => handlePayRemaining(booking)}
-                                    >
-                                        Pay Remainder (₹{(booking.pg.price - (booking.donorContribution || 0)).toFixed(2)})
-                                    </button>
-                                )}
-                                {booking.status === 'PENDING' && (
-                                    <button
+                                        onClick={() => handleCancel(booking.id)}
                                         className="btn btn-outline"
-                                        style={{ marginTop: '0.5rem', fontSize: '0.8rem', padding: '0.3rem 0.8rem', color: '#1e40af', borderColor: '#1e40af' }}
-                                        onClick={() => handleRequestAid(booking.id)}
+                                        style={{ color: '#ef4444', borderColor: '#fee2e2', background: '#fef2f2' }}
+                                        title="Cancel Booking"
                                     >
-                                        Request Sponsorship
+                                        <FaTimesCircle />
                                     </button>
-                                )}
+                                </div>
                             </div>
+                        );
+                    })}
+                </div>
+            )}
 
-                            {/* Rent Info */}
-                            <div>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Rent Info</p>
-                                <p><strong>Cycle:</strong> Monthly</p>
-                                <p style={{ color: '#dc2626', fontWeight: 'bold' }}>
-                                    Next Due: {calculateDeadline(booking.bookingDate)}
-                                </p>
-                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                    ({calculateDaysLeft(booking.bookingDate)} days left)
-                                </p>
-                            </div>
-
-                            {/* Actions */}
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '1rem' }}>
-                                <button
-                                    onClick={() => handleCancel(booking.id)}
-                                    className="btn btn-outline"
-                                    style={{ fontSize: '0.9rem', color: '#dc2626', borderColor: '#dc2626' }}
-                                >
-                                    Cancel Booking
-                                </button>
-                                <a href={`/pg/${booking.pg.id}`} className="btn btn-outline" style={{ fontSize: '0.9rem' }}>
-                                    View PG
-                                </a>
-                            </div>
+            {/* Edit Profile Modal */}
+            {isEditingProfile && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+                }}>
+                    <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', width: '90%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', alignItems: 'center' }}>
+                            <h2 style={{ margin: 0, color: '#1e293b' }}>Edit Profile</h2>
+                            <button onClick={() => setIsEditingProfile(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}><FaTimesCircle /></button>
                         </div>
-                    ))}
+
+                        <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontWeight: '500' }}>Username</label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value={editFormData.username}
+                                    onChange={handleInputChange}
+                                    className="input-field"
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontWeight: '500' }}>Email</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={editFormData.email}
+                                    onChange={handleInputChange}
+                                    className="input-field"
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontWeight: '500' }}>Phone Number</label>
+                                <input
+                                    type="text"
+                                    name="phoneNumber"
+                                    value={editFormData.phoneNumber}
+                                    onChange={handleInputChange}
+                                    className="input-field"
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                />
+                            </div>
+
+                            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', padding: '0.8rem', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                                <FaCheckCircle /> Save Changes
+                            </button>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

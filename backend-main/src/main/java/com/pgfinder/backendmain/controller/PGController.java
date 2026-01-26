@@ -58,6 +58,7 @@ public class PGController {
             @RequestParam("address") String address,
             @RequestParam("price") Double price,
             @RequestParam("description") String description,
+            @RequestParam(value = "gender", required = false, defaultValue = "Co-ed") String gender,
             @RequestParam(value = "images", required = false) java.util.List<org.springframework.web.multipart.MultipartFile> images,
             @RequestParam(value = "video", required = false) org.springframework.web.multipart.MultipartFile video
             ) {
@@ -70,6 +71,7 @@ public class PGController {
         pg.setAddress(address);
         pg.setPrice(price);
         pg.setDescription(description);
+        pg.setGender(gender);
         pg.setOwnerUsername(username);
 
         //// Handle Images
@@ -112,6 +114,7 @@ public class PGController {
             @RequestParam("address") String address,
             @RequestParam("price") Double price,
             @RequestParam("description") String description,
+            @RequestParam(value = "gender", required = false) String gender,
             @RequestParam(value = "images", required = false) java.util.List<org.springframework.web.multipart.MultipartFile> images,
             @RequestParam(value = "video", required = false) org.springframework.web.multipart.MultipartFile video
     ) {
@@ -121,6 +124,7 @@ public class PGController {
         pg.setAddress(address);
         pg.setPrice(price);
         pg.setDescription(description);
+        if(gender != null) pg.setGender(gender);
 
         // Handle Images
         if (images != null && !images.isEmpty()) {

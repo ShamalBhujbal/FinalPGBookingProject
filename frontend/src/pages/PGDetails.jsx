@@ -102,7 +102,7 @@ const PGDetails = () => {
                     contact: ""
                 },
                 theme: {
-                    color: "#4F46E5"
+                    color: "#0f766e"
                 },
             };
 
@@ -291,7 +291,7 @@ const PGDetails = () => {
                                         <li key={review.id} style={{ borderBottom: '1px solid #eee', paddingBottom: '1rem', marginBottom: '1rem' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                                 <strong>{review.username}</strong>
-                                                <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>{'★'.repeat(review.rating)}</span>
+                                                <span style={{ color: 'var(--accent)', fontWeight: 'bold' }}>{'★'.repeat(review.rating)}</span>
                                             </div>
                                             <p style={{ marginTop: '0.5rem' }}>{review.comment}</p>
                                         </li>

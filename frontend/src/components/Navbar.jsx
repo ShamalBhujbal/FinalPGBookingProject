@@ -41,6 +41,9 @@ const Navbar = () => {
                     <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '500' }}>
                         <FaHome /> Home
                     </Link>
+                    <Link to="/about" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: '500' }}>
+                        About Us
+                    </Link>
 
                     {user ? (
                         <>

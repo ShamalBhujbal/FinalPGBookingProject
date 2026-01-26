@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { FaEdit, FaTimesCircle, FaCheckCircle } from 'react-icons/fa';
 
 const DonorDashboard = () => {
     const { user } = useAuth();
@@ -9,12 +10,49 @@ const DonorDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [impactHistory, setImpactHistory] = useState([]);
 
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        username: '',
+        email: '',
+        phoneNumber: ''
+    });
+
     useEffect(() => {
         if (user) {
             fetchRequests();
             fetchImpact();
+            fetchUserDetails();
         }
     }, [user]);
+
+    const fetchUserDetails = async () => {
+        try {
+            const response = await api.get('/users/me');
+            setEditFormData({
+                username: response.data.username || '',
+                email: response.data.email || '',
+                phoneNumber: response.data.phoneNumber || ''
+            });
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+        }
+    };
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        try {
+            await api.put('/users/me', editFormData);
+            setIsEditingProfile(false);
+            toast.success("Profile updated successfully!");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to update profile.");
+        }
+    };
+
+    const handleInputChange = (e) => {
+        setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+    };
 
     const fetchRequests = async () => {
         // ... (existing fetchRequests code)
@@ -67,7 +105,16 @@ const DonorDashboard = () => {
     return (
         <div className="container" style={{ padding: '2rem 1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h1 className="text-3xl font-bold text-primary" style={{ margin: 0 }}>Donor Dashboard</h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <h1 className="text-3xl font-bold text-primary" style={{ margin: 0 }}>Donor Dashboard</h1>
+                    <button
+                        onClick={() => setIsEditingProfile(true)}
+                        style={{ background: 'var(--primary)', border: 'none', color: 'white', padding: '0.4rem', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        title="Edit Profile"
+                    >
+                        <FaEdit size={14} />
+                    </button>
+                </div>
                 <button onClick={() => { fetchRequests(); fetchImpact(); }} className="btn btn-outline" style={{ fontSize: '0.9rem' }}>🔄 Refresh</button>
             </div>
 
@@ -143,6 +190,63 @@ const DonorDashboard = () => {
                     </div>
                 )}
             </div>
+
+            {/* Edit Profile Modal */}
+            {isEditingProfile && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+                }}>
+                    <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', width: '90%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', alignItems: 'center' }}>
+                            <h2 style={{ margin: 0, color: '#1e293b' }}>Edit Profile</h2>
+                            <button onClick={() => setIsEditingProfile(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}><FaTimesCircle /></button>
+                        </div>
+
+                        <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontWeight: '500' }}>Username</label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value={editFormData.username}
+                                    onChange={handleInputChange}
+                                    className="input-field"
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontWeight: '500' }}>Email</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={editFormData.email}
+                                    onChange={handleInputChange}
+                                    className="input-field"
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#475569', fontWeight: '500' }}>Phone Number</label>
+                                <input
+                                    type="text"
+                                    name="phoneNumber"
+                                    value={editFormData.phoneNumber}
+                                    onChange={handleInputChange}
+                                    className="input-field"
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                                />
+                            </div>
+
+                            <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', padding: '0.8rem', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                                <FaCheckCircle /> Save Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

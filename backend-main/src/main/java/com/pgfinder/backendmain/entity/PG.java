@@ -39,6 +39,9 @@ public class PG {
     @Column
     private String videoUrl;
 
+    @Column
+    private String gender; // Values: "Boys", "Girls", "Co-ed"
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
@@ -55,4 +58,6 @@ public class PG {
     public void setImageUrls(java.util.List<String> imageUrls) { this.imageUrls = imageUrls; }
     public String getVideoUrl() { return videoUrl; }
     public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 }
