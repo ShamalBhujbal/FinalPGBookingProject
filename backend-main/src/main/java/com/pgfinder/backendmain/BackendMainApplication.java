@@ -3,7 +3,7 @@ package com.pgfinder.backendmain;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication 
 public class BackendMainApplication {
 
 	public static void main(String[] args) {

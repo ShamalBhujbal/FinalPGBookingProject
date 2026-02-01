@@ -105,4 +105,10 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cancel Failed: " + e.getMessage());
         }
     }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
+        return ResponseEntity.ok(bookingService.getBookingById(id));
+    }
 }

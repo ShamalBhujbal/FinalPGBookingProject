@@ -36,4 +36,5 @@ com\pgfinder\backendmain\controller\AdminController.class
 com\pgfinder\backendmain\service\impl\PGServiceImpl.class
 com\pgfinder\backendmain\service\impl\EmailServiceImpl.class
 com\pgfinder\backendmain\config\DataInitializer.class
+com\pgfinder\backendmain\config\DataSeeder.class
 com\pgfinder\backendmain\service\EmailService.class

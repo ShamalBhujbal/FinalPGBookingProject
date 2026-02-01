@@ -63,12 +63,10 @@ public class PGServiceImpl implements PGService {
     @org.springframework.transaction.annotation.Transactional
     public void deletePG(Long id) {
         // Delete associated bookings
-        List<com.pgfinder.backendmain.entity.Booking> bookings = bookingRepository.findByPgId(id);
-        bookingRepository.deleteAll(bookings);
+        bookingRepository.deleteByPgId(id);
 
         // Delete associated reviews
-        List<com.pgfinder.backendmain.entity.Review> reviews = reviewRepository.findByPgId(id);
-        reviewRepository.deleteAll(reviews);
+        reviewRepository.deleteByPgId(id);
 
         pgRepository.deleteById(id);
     }

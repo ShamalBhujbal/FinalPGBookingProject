@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { FaUserCircle, FaCalendarAlt, FaMoneyBillWave, FaMapMarkerAlt, FaClock, FaCheckCircle, FaTimesCircle, FaHandHoldingHeart, FaEdit } from 'react-icons/fa';
+import { FaUserCircle, FaCalendarAlt, FaMoneyBillWave, FaMapMarkerAlt, FaClock, FaCheckCircle, FaTimesCircle, FaHandHoldingHeart, FaEdit, FaDownload } from 'react-icons/fa';
 
 const UserDashboard = () => {
     const { user: authUser } = useAuth();
@@ -177,6 +177,19 @@ const UserDashboard = () => {
         }
     };
 
+    const handleBecomeDonor = async () => {
+        if (window.confirm('Do you want to become a Donor and help students by sponsoring their rent?')) {
+            try {
+                await api.post('/users/become-donor');
+                toast.success('Congratulations! You are now a Donor.');
+                window.location.reload();
+            } catch (error) {
+                console.error('Error becoming donor:', error);
+                toast.error('Failed to update profile');
+            }
+        }
+    };
+
     const getStatusConfig = (status) => {
         switch (status) {
             case 'CONFIRMED': return { bg: '#ecfdf5', color: '#059669', icon: <FaCheckCircle />, label: 'Confirmed' };
@@ -229,6 +242,18 @@ const UserDashboard = () => {
                             </button>
                         </div>
                         <p style={{ margin: '0.5rem 0 0', opacity: 0.9, fontSize: '1.1rem' }}>{user?.email}</p>
+
+                        <div style={{ marginTop: '0.5rem' }}>
+                            {user && user.roles && user.roles.includes('ROLE_DONOR') ? (
+                                <a href="/donor-dashboard" className="btn btn-secondary" style={{ backgroundColor: '#2563eb', color: 'white', fontSize: '0.8rem', padding: '0.4rem 0.8rem', textDecoration: 'none', display: 'inline-block', borderRadius: '4px' }}>
+                                    Go to Donor Dashboard
+                                </a>
+                            ) : (
+                                <button onClick={handleBecomeDonor} className="btn" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '0.8rem', padding: '0.4rem 0.8rem', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '4px', cursor: 'pointer' }}>
+                                    ❤️ Become a Donor
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -342,6 +367,15 @@ const UserDashboard = () => {
                                     {booking.status === 'PENDING' && (
                                         <button className="btn btn-outline" style={{ flex: 1, fontSize: '0.9rem' }} onClick={() => handleRequestAid(booking.id)}>
                                             Request Sponsorship
+                                        </button>
+                                    )}
+                                    {booking.status === 'CONFIRMED' && (
+                                        <button
+                                            className="btn btn-outline"
+                                            style={{ flex: 1, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+                                            onClick={() => window.open(`/receipt/${booking.id}`, '_blank')}
+                                        >
+                                            <FaDownload /> Receipt
                                         </button>
                                     )}
                                     <a href={`/pg/${booking.pg.id}`} className="btn btn-outline" style={{ flex: 1, textAlign: 'center', fontSize: '0.9rem' }}>Details</a>

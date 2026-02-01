@@ -14,4 +14,5 @@ public interface BookingService {
     Booking updateBookingStatus(Long bookingId, String status);
     Booking approveSponsorship(Long bookingId, String donorUsername, Double percentage);
     void deleteBooking(Long bookingId);
+    Booking getBookingById(Long bookingId);
 }

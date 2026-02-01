@@ -35,9 +35,11 @@ public class User {
     @Column(name = "role")
     private Set<String> roles; // e.g., "ROLE_USER", "ROLE_ADMIN", "ROLE_OWNER"
     
-    // Percentage of rent this donor is willing to sponsor (e.g., 10 for 10%)
     @Column(name = "sponsorship_percentage")
     private Double sponsorshipPercentage;
+
+    @Column
+    private String gender;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -53,4 +55,6 @@ public class User {
     public void setRoles(Set<String> roles) { this.roles = roles; }
     public Double getSponsorshipPercentage() { return sponsorshipPercentage; }
     public void setSponsorshipPercentage(Double sponsorshipPercentage) { this.sponsorshipPercentage = sponsorshipPercentage; }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 }

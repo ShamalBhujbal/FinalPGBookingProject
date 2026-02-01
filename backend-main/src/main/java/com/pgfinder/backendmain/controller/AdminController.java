@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@RestController 
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
@@ -18,11 +18,13 @@ public class AdminController {
     private final UserRepository userRepository;
     private final PGRepository pgRepository;
     private final com.pgfinder.backendmain.repository.BookingRepository bookingRepository;
+    private final com.pgfinder.backendmain.service.PGService pgService;
 
-    public AdminController(UserRepository userRepository, PGRepository pgRepository, com.pgfinder.backendmain.repository.BookingRepository bookingRepository) {
+    public AdminController(UserRepository userRepository, PGRepository pgRepository, com.pgfinder.backendmain.repository.BookingRepository bookingRepository, com.pgfinder.backendmain.service.PGService pgService) {
         this.userRepository = userRepository;
         this.pgRepository = pgRepository;
         this.bookingRepository = bookingRepository;
+        this.pgService = pgService;
     }
 
     // --- Dashboard Statistics ---
@@ -100,10 +102,10 @@ public class AdminController {
     }
 
     @PostMapping("/pgs")
-    public PG createPG(@RequestBody PG pg) {
+    public PG createPG(@RequestBody PG pg) { 
         return pgRepository.save(pg);
     }
-
+ 
     @PutMapping("/pgs/{id}")
     public ResponseEntity<PG> updatePG(@PathVariable Long id, @RequestBody PG pgDetails) {
         return pgRepository.findById(id).map(pg -> {
@@ -111,7 +113,7 @@ public class AdminController {
             pg.setAddress(pgDetails.getAddress());
             pg.setPrice(pgDetails.getPrice());
             pg.setDescription(pgDetails.getDescription());
-            // Update other fields as necessary
+            // Update other fields as necessary 
             return ResponseEntity.ok(pgRepository.save(pg));
         }).orElse(ResponseEntity.notFound().build());
     }
@@ -121,7 +123,8 @@ public class AdminController {
         if (!pgRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        pgRepository.deleteById(id);
+        // Use service to handle cascading deletion (bookings, reviews)
+        pgService.deletePG(id);
         return ResponseEntity.ok("PG listing deleted successfully");
     }
 }

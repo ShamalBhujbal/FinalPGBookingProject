@@ -9,7 +9,9 @@ const Register = () => {
         username: '',
         email: '',
         password: '',
-        role: 'user'
+        role: 'user',
+        phoneNumber: '',
+        gender: ''
     });
     const { register } = useAuth();
     const navigate = useNavigate();
@@ -27,6 +29,8 @@ const Register = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) newErrors.email = "Invalid email format";
         if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+        if (formData.phoneNumber && !/^\d{10}$/.test(formData.phoneNumber)) newErrors.phoneNumber = "Phone number must be 10 digits";
+        if (!formData.gender) newErrors.gender = "Please select a gender";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -92,6 +96,37 @@ const Register = () => {
                                 placeholder="your@email.com"
                             />
                             {errors.email && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.email}</span>}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Phone Number</label>
+                            <input
+                                type="text"
+                                name="phoneNumber"
+                                value={formData.phoneNumber}
+                                onChange={handleChange}
+                                className="input-field"
+                                placeholder="10-digit mobile"
+                            />
+                            {errors.phoneNumber && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.phoneNumber}</span>}
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Gender</label>
+                            <select
+                                name="gender"
+                                value={formData.gender}
+                                onChange={handleChange}
+                                className="input-field"
+                                style={{ width: '100%', backgroundColor: 'white' }}
+                            >
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            {errors.gender && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.gender}</span>}
                         </div>
                     </div>
 

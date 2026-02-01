@@ -15,7 +15,10 @@ const OwnerDashboard = () => {
         name: '',
         address: '',
         price: '',
-        description: ''
+        address: '',
+        price: '',
+        description: '',
+        gender: 'Co-ed'
     });
     const [errors, setErrors] = useState({});
 
@@ -59,6 +62,7 @@ const OwnerDashboard = () => {
         data.append('address', formData.address);
         data.append('price', formData.price);
         data.append('description', formData.description);
+        data.append('gender', formData.gender);
 
         if (formData.images && formData.images.length > 0) {
             for (let i = 0; i < formData.images.length; i++) {
@@ -103,6 +107,7 @@ const OwnerDashboard = () => {
             address: pg.address,
             price: pg.price,
             description: pg.description || '',
+            gender: pg.gender || 'Co-ed',
             imageUrls: pg.imageUrls ? pg.imageUrls.join(', ') : '',
             videoUrl: pg.videoUrl || ''
         });
@@ -125,7 +130,7 @@ const OwnerDashboard = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', address: '', price: '', description: '', images: [], video: null });
+        setFormData({ name: '', address: '', price: '', description: '', gender: 'Co-ed', images: [], video: null });
         setEditingId(null);
         setShowForm(false);
         setErrors({});
@@ -221,6 +226,20 @@ const OwnerDashboard = () => {
                         </div>
 
                         <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>PG For (Gender)</label>
+                            <select
+                                className="input-field"
+                                value={formData.gender}
+                                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                style={{ width: '100%', backgroundColor: 'white' }}
+                            >
+                                <option value="Co-ed">Co-ed (Both)</option>
+                                <option value="Boys">Boys Only</option>
+                                <option value="Girls">Girls Only</option>
+                            </select>
+                        </div>
+
+                        <div style={{ marginBottom: '1rem' }}>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Upload Images</label>
                             <input
                                 type="file"
@@ -293,7 +312,10 @@ const OwnerDashboard = () => {
                                 <div style={{ padding: '1.5rem' }}>
                                     <h3 style={{ marginBottom: '0.5rem', color: 'var(--primary)' }}>{pg.name}</h3>
                                     <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem', fontSize: '0.9rem' }}>📍 {pg.address}</p>
-                                    <p style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.1rem' }}>₹{pg.price} <span style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>/ month</span></p>
+                                    <p style={{ fontWeight: '600', marginBottom: '0.5rem', fontSize: '1.1rem' }}>₹{pg.price} <span style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>/ month</span></p>
+                                    <p style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#4b5563' }}>
+                                        For: <strong>{pg.gender || 'Co-ed'}</strong>
+                                    </p>
 
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                                         <button
