@@ -15,4 +15,5 @@ public interface BookingService {
     Booking approveSponsorship(Long bookingId, String donorUsername, Double percentage);
     void deleteBooking(Long bookingId);
     Booking getBookingById(Long bookingId);
+    List<Booking> getAllBookings();
 }

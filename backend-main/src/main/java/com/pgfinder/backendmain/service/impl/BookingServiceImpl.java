@@ -165,4 +165,9 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
     }
+
+    @Override
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
 }

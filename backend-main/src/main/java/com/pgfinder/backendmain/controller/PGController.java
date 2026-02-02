@@ -59,6 +59,8 @@ public class PGController {
             @RequestParam("price") Double price,
             @RequestParam("description") String description,
             @RequestParam(value = "gender", required = false, defaultValue = "Co-ed") String gender,
+            @RequestParam(value = "totalSlots", required = false) Integer totalSlots,
+            @RequestParam(value = "availableSlots", required = false) Integer availableSlots,
             @RequestParam(value = "images", required = false) java.util.List<org.springframework.web.multipart.MultipartFile> images,
             @RequestParam(value = "video", required = false) org.springframework.web.multipart.MultipartFile video
             ) {
@@ -72,6 +74,8 @@ public class PGController {
         pg.setPrice(price);
         pg.setDescription(description);
         pg.setGender(gender);
+        pg.setTotalSlots(totalSlots);
+        pg.setAvailableSlots(availableSlots != null ? availableSlots : totalSlots); // Default available to total if not set
         pg.setOwnerUsername(username);
 
         //// Handle Images
@@ -115,6 +119,8 @@ public class PGController {
             @RequestParam("price") Double price,
             @RequestParam("description") String description,
             @RequestParam(value = "gender", required = false) String gender,
+            @RequestParam(value = "totalSlots", required = false) Integer totalSlots,
+            @RequestParam(value = "availableSlots", required = false) Integer availableSlots,
             @RequestParam(value = "images", required = false) java.util.List<org.springframework.web.multipart.MultipartFile> images,
             @RequestParam(value = "video", required = false) org.springframework.web.multipart.MultipartFile video
     ) {
@@ -125,6 +131,8 @@ public class PGController {
         pg.setPrice(price);
         pg.setDescription(description);
         if(gender != null) pg.setGender(gender);
+        if(totalSlots != null) pg.setTotalSlots(totalSlots);
+        if(availableSlots != null) pg.setAvailableSlots(availableSlots);
 
         // Handle Images
         if (images != null && !images.isEmpty()) {

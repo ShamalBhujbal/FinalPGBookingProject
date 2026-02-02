@@ -3,6 +3,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaEdit, FaTimesCircle, FaCheckCircle } from 'react-icons/fa';
+import dashboardBg from '../assets/dashboard_bg.jpg';
 
 const DonorDashboard = () => {
     const { user } = useAuth();
@@ -104,18 +105,33 @@ const DonorDashboard = () => {
 
     return (
         <div className="container" style={{ padding: '2rem 1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{
+                background: `linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%), url(${dashboardBg}) no-repeat center center/cover`,
+                borderRadius: '16px',
+                padding: '3rem 2rem',
+                color: 'white',
+                marginBottom: '2rem',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '1rem'
+            }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <h1 className="text-3xl font-bold text-primary" style={{ margin: 0 }}>Donor Dashboard</h1>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: 'white' }}>Donor Dashboard</h1>
+                        <p style={{ margin: '0.5rem 0 0', opacity: 0.9, fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)' }}>Make a difference in students' lives</p>
+                    </div>
                     <button
                         onClick={() => setIsEditingProfile(true)}
-                        style={{ background: 'var(--primary)', border: 'none', color: 'white', padding: '0.4rem', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '0.5rem', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '1rem' }}
                         title="Edit Profile"
                     >
-                        <FaEdit size={14} />
+                        <FaEdit size={16} />
                     </button>
                 </div>
-                <button onClick={() => { fetchRequests(); fetchImpact(); }} className="btn btn-outline" style={{ fontSize: '0.9rem' }}>🔄 Refresh</button>
+                <button onClick={() => { fetchRequests(); fetchImpact(); }} className="btn btn-outline" style={{ fontSize: '0.9rem', borderColor: 'rgba(255,255,255,0.4)', color: 'white' }}>🔄 Refresh</button>
             </div>
 
             <div className="card mb-6">

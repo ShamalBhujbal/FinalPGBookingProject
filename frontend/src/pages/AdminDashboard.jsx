@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 import { FaUsers, FaHandHoldingHeart, FaHome, FaBookmark, FaEdit, FaTrash, FaTimes, FaSave } from 'react-icons/fa';
+import dashboardBg from '../assets/dashboard_bg.jpg';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -10,7 +11,10 @@ const AdminDashboard = () => {
         totalDonors: 0,
         totalOwners: 0,
         totalPGs: 0,
-        totalBookings: 0
+        totalOwners: 0,
+        totalPGs: 0,
+        totalBookings: 0,
+        usersWithBookings: 0
     });
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -40,24 +44,39 @@ const AdminDashboard = () => {
             switch (tab) {
                 case 'users': endpoint = '/admin/users'; break;
                 case 'pgs': endpoint = '/admin/pgs'; break;
+                case 'bookings': endpoint = '/bookings/admin/all'; break;
                 default: return;
             }
+            console.log(`Fetching data for ${tab} from ${endpoint}`);
             const response = await api.get(endpoint);
+            console.log(`Data for ${tab}:`, response.data);
             setData(response.data);
         } catch (error) {
             console.error("Error fetching data:", error);
-            // toast.error("Failed to fetch data.");
+            if (error.response) {
+                console.error("Server responded with:", error.response.status, error.response.data);
+                toast.error(`Failed to fetch data: ${error.response.status}`);
+            } else {
+                toast.error("Failed to fetch data: Network Error");
+            }
         } finally {
             setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        const itemType = activeTab === 'pgs' ? 'PG listing' : 'User';
+        let itemType = 'User';
+        if (activeTab === 'pgs') itemType = 'PG listing';
+        if (activeTab === 'bookings') itemType = 'Booking';
+
         if (!window.confirm(`Are you sure you want to delete this ${itemType}?`)) return;
 
         try {
-            const endpoint = activeTab === 'pgs' ? `/admin/pgs/${id}` : `/admin/users/${id}`;
+            let endpoint = '';
+            if (activeTab === 'pgs') endpoint = `/admin/pgs/${id}`;
+            else if (activeTab === 'bookings') endpoint = `/bookings/${id}`;
+            else endpoint = `/admin/users/${id}`;
+
             await api.delete(endpoint);
             toast.success(`${itemType} deleted successfully`);
             setData(data.filter(item => item.id !== id));
@@ -73,15 +92,30 @@ const AdminDashboard = () => {
     };
 
     const handleSaveEdit = async () => {
+        console.log("Saving edit...", editingItem);
         try {
-            const endpoint = activeTab === 'pgs' ? `/admin/pgs/${editingItem.id}` : `/admin/users/${editingItem.id}`;
-            await api.put(endpoint, editingItem);
-            toast.success("Updated successfully");
-            setShowModal(false);
-            fetchData(activeTab); // Refresh list
+            let endpoint = '';
+            // Ensure we match the exact string for the tab
+            if (activeTab === 'pgs') endpoint = `/admin/pgs/${editingItem.id}`;
+            else if (activeTab === 'users') endpoint = `/admin/users/${editingItem.id}`;
+            else if (activeTab === 'bookings') return; // Booking edit not supported yet
+
+            console.log("Endpoint determined:", endpoint);
+
+            if (endpoint) {
+                const response = await api.put(endpoint, editingItem);
+                console.log("Update response:", response);
+                toast.success("Updated successfully");
+                setShowModal(false);
+                fetchData(activeTab); // Refresh list
+            } else {
+                console.warn("No endpoint found for activeTab:", activeTab);
+                toast.error("Error: Unknown category to update.");
+            }
         } catch (error) {
-            toast.error("Failed to update");
-            console.error(error);
+            console.error("Save failed:", error);
+            const msg = error.response?.data?.message || "Failed to update";
+            toast.error(msg);
         }
     };
 
@@ -111,7 +145,17 @@ const AdminDashboard = () => {
 
     return (
         <div className="container" style={{ padding: '2rem 0' }}>
-            <h1 style={{ marginBottom: '2rem', color: 'var(--primary)' }}>Admin Dashboard</h1>
+            <div style={{
+                background: `linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%), url(${dashboardBg}) no-repeat center center/cover`,
+                borderRadius: '16px',
+                padding: '3rem 2rem',
+                color: 'white',
+                marginBottom: '3rem',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}>
+                <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: 'white' }}>Admin Dashboard</h1>
+                <p style={{ margin: '0.5rem 0 0', opacity: 0.9, fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)' }}>System Overview and Management</p>
+            </div>
 
             {/* Statistics Section */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
@@ -126,6 +170,7 @@ const AdminDashboard = () => {
                 <button className={`btn ${activeTab === 'dashboard' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('dashboard')}>Overview</button>
                 <button className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('users')}>Manage Users</button>
                 <button className={`btn ${activeTab === 'pgs' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('pgs')}>Manage PGs</button>
+                <button className={`btn ${activeTab === 'bookings' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('bookings')}>Manage Bookings</button>
                 <button className="btn btn-outline" onClick={() => { fetchStats(); if (activeTab !== 'dashboard') fetchData(activeTab); }} title="Refresh Data">🔄 Refresh</button>
             </div>
 
@@ -142,6 +187,13 @@ const AdminDashboard = () => {
                                             <th style={{ padding: '1rem' }}>Name</th>
                                             <th style={{ padding: '1rem' }}>Location</th>
                                             <th style={{ padding: '1rem' }}>Price</th>
+                                        </>
+                                    ) : activeTab === 'bookings' ? (
+                                        <>
+                                            <th style={{ padding: '1rem' }}>PG Name</th>
+                                            <th style={{ padding: '1rem' }}>User</th>
+                                            <th style={{ padding: '1rem' }}>Status</th>
+                                            <th style={{ padding: '1rem' }}>Date</th>
                                         </>
                                     ) : (
                                         <>
@@ -163,6 +215,21 @@ const AdminDashboard = () => {
                                                 <td style={{ padding: '1rem' }}>{item.address}</td>
                                                 <td style={{ padding: '1rem' }}>₹{item.price}</td>
                                             </>
+                                        ) : activeTab === 'bookings' ? (
+                                            <>
+                                                <td style={{ padding: '1rem' }}>{item.pg ? item.pg.name : 'N/A'}</td>
+                                                <td style={{ padding: '1rem' }}>{item.username}</td>
+                                                <td style={{ padding: '1rem' }}>
+                                                    <span style={{
+                                                        padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: '500',
+                                                        background: item.status === 'CONFIRMED' ? '#dcfce7' : item.status === 'PENDING' ? '#fef3c7' : '#fee2e2',
+                                                        color: item.status === 'CONFIRMED' ? '#166534' : item.status === 'PENDING' ? '#d97706' : '#991b1b'
+                                                    }}>
+                                                        {item.status}
+                                                    </span>
+                                                </td>
+                                                <td style={{ padding: '1rem' }}>{new Date(item.bookingDate).toLocaleDateString()}</td>
+                                            </>
                                         ) : (
                                             <>
                                                 <td style={{ padding: '1rem' }}>{item.username}</td>
@@ -181,9 +248,11 @@ const AdminDashboard = () => {
                                             </>
                                         )}
                                         <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
-                                            <button onClick={() => handleEditClick(item)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '1.1rem' }} title="Edit">
-                                                <FaEdit />
-                                            </button>
+                                            {activeTab !== 'bookings' && (
+                                                <button onClick={() => handleEditClick(item)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '1.1rem' }} title="Edit">
+                                                    <FaEdit />
+                                                </button>
+                                            )}
                                             <button onClick={() => handleDelete(item.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1.1rem' }} title="Delete">
                                                 <FaTrash />
                                             </button>
@@ -223,7 +292,6 @@ const AdminDashboard = () => {
                                     <label>Username <input type="text" name="username" value={editingItem.username} onChange={handleInputChange} className="input-field" style={{ width: '100%', padding: '0.5rem' }} /></label>
                                     <label>Email <input type="email" name="email" value={editingItem.email} onChange={handleInputChange} className="input-field" style={{ width: '100%', padding: '0.5rem' }} /></label>
                                     <label>Phone Number <input type="text" name="phoneNumber" value={editingItem.phoneNumber || ''} onChange={handleInputChange} className="input-field" style={{ width: '100%', padding: '0.5rem' }} /></label>
-                                    {/* Role editing is complex for string set, simplified to text or omitted for now to avoid errors */}
                                 </>
                             )}
 

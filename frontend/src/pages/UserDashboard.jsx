@@ -3,6 +3,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaUserCircle, FaCalendarAlt, FaMoneyBillWave, FaMapMarkerAlt, FaClock, FaCheckCircle, FaTimesCircle, FaHandHoldingHeart, FaEdit, FaDownload } from 'react-icons/fa';
+import dashboardBg from '../assets/dashboard_bg.jpg';
 
 const UserDashboard = () => {
     const { user: authUser } = useAuth();
@@ -210,7 +211,7 @@ const UserDashboard = () => {
         <div className="container" style={{ padding: '2rem 0', maxWidth: '1200px' }}>
             {/* Header Section */}
             <div style={{
-                background: 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)',
+                background: `linear-gradient(135deg, rgba(15, 118, 110, 0.7) 0%, rgba(13, 148, 136, 0.7) 100%), url(${dashboardBg}) no-repeat center center/cover`,
                 borderRadius: '16px',
                 padding: '3rem 2rem',
                 color: 'white',

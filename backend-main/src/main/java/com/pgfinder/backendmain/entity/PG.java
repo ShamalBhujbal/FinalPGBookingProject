@@ -42,6 +42,12 @@ public class PG {
     @Column
     private String gender; // Values: "Boys", "Girls", "Co-ed"
 
+    @Column
+    private Integer totalSlots;
+
+    @Column
+    private Integer availableSlots;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
@@ -60,4 +66,8 @@ public class PG {
     public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
+    public Integer getTotalSlots() { return totalSlots; }
+    public void setTotalSlots(Integer totalSlots) { this.totalSlots = totalSlots; }
+    public Integer getAvailableSlots() { return availableSlots; }
+    public void setAvailableSlots(Integer availableSlots) { this.availableSlots = availableSlots; }
 }

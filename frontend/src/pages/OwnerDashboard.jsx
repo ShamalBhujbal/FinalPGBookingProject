@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import dashboardBg from '../assets/dashboard_bg.jpg';
 
 const OwnerDashboard = () => {
     const [pgs, setPgs] = useState([]);
@@ -18,7 +19,9 @@ const OwnerDashboard = () => {
         address: '',
         price: '',
         description: '',
-        gender: 'Co-ed'
+        gender: 'Co-ed',
+        totalSlots: '',
+        availableSlots: ''
     });
     const [errors, setErrors] = useState({});
 
@@ -63,6 +66,8 @@ const OwnerDashboard = () => {
         data.append('price', formData.price);
         data.append('description', formData.description);
         data.append('gender', formData.gender);
+        data.append('totalSlots', formData.totalSlots);
+        data.append('availableSlots', formData.availableSlots);
 
         if (formData.images && formData.images.length > 0) {
             for (let i = 0; i < formData.images.length; i++) {
@@ -109,6 +114,11 @@ const OwnerDashboard = () => {
             description: pg.description || '',
             gender: pg.gender || 'Co-ed',
             imageUrls: pg.imageUrls ? pg.imageUrls.join(', ') : '',
+            description: pg.description || '',
+            gender: pg.gender || 'Co-ed',
+            totalSlots: pg.totalSlots || '',
+            availableSlots: pg.availableSlots || '',
+            imageUrls: pg.imageUrls ? pg.imageUrls.join(', ') : '',
             videoUrl: pg.videoUrl || ''
         });
         setEditingId(pg.id);
@@ -130,7 +140,7 @@ const OwnerDashboard = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', address: '', price: '', description: '', gender: 'Co-ed', images: [], video: null });
+        setFormData({ name: '', address: '', price: '', description: '', gender: 'Co-ed', totalSlots: '', availableSlots: '', images: [], video: null });
         setEditingId(null);
         setShowForm(false);
         setErrors({});
@@ -161,8 +171,23 @@ const OwnerDashboard = () => {
 
     return (
         <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '2rem 0' }}>
-                <h1 style={{ color: 'var(--primary)' }}>Owner Dashboard</h1>
+            <div style={{
+                background: `linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%), url(${dashboardBg}) no-repeat center center/cover`,
+                borderRadius: '16px',
+                padding: '3rem 2rem',
+                color: 'white',
+                marginBottom: '2rem',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '1rem'
+            }}>
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: 'white' }}>Owner Dashboard</h1>
+                    <p style={{ margin: '0.5rem 0 0', opacity: 0.9, fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)' }}>Manage your PGs and track your earnings</p>
+                </div>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     {/* Donor Option */}
                     {user && user.roles && user.roles.includes('ROLE_DONOR') ? (
@@ -223,6 +248,29 @@ const OwnerDashboard = () => {
                                 placeholder="5000"
                             />
                             {errors.price && <span style={{ color: 'red', fontSize: '0.8rem' }}>{errors.price}</span>}
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Total Slots</label>
+                                <input
+                                    type="number"
+                                    className="input-field"
+                                    value={formData.totalSlots}
+                                    onChange={(e) => setFormData({ ...formData, totalSlots: e.target.value })}
+                                    placeholder="e.g. 10"
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Available Slots</label>
+                                <input
+                                    type="number"
+                                    className="input-field"
+                                    value={formData.availableSlots}
+                                    onChange={(e) => setFormData({ ...formData, availableSlots: e.target.value })}
+                                    placeholder="e.g. 5"
+                                />
+                            </div>
                         </div>
 
                         <div style={{ marginBottom: '1rem' }}>
@@ -313,8 +361,11 @@ const OwnerDashboard = () => {
                                     <h3 style={{ marginBottom: '0.5rem', color: 'var(--primary)' }}>{pg.name}</h3>
                                     <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem', fontSize: '0.9rem' }}>📍 {pg.address}</p>
                                     <p style={{ fontWeight: '600', marginBottom: '0.5rem', fontSize: '1.1rem' }}>₹{pg.price} <span style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>/ month</span></p>
-                                    <p style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#4b5563' }}>
+                                    <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#4b5563' }}>
                                         For: <strong>{pg.gender || 'Co-ed'}</strong>
+                                    </p>
+                                    <p style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#4b5563' }}>
+                                        Slots: <strong>{pg.availableSlots !== undefined ? pg.availableSlots : 'N/A'}</strong> / {pg.totalSlots || 'N/A'}
                                     </p>
 
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>

@@ -64,11 +64,12 @@ public class AdminController {
 
     @PutMapping("/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+        System.out.println("DEBUG: Updating user " + id + " with data: " + userDetails);
         return userRepository.findById(id).map(user -> {
-            user.setUsername(userDetails.getUsername());
-            user.setEmail(userDetails.getEmail());
-            user.setPhoneNumber(userDetails.getPhoneNumber());
-            user.setRoles(userDetails.getRoles());
+            if (userDetails.getUsername() != null) user.setUsername(userDetails.getUsername());
+            if (userDetails.getEmail() != null) user.setEmail(userDetails.getEmail());
+            if (userDetails.getPhoneNumber() != null) user.setPhoneNumber(userDetails.getPhoneNumber());
+            if (userDetails.getRoles() != null) user.setRoles(userDetails.getRoles());
             return ResponseEntity.ok(userRepository.save(user));
         }).orElse(ResponseEntity.notFound().build());
     }

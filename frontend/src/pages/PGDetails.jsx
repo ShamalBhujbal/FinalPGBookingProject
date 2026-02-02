@@ -4,6 +4,7 @@ import api from '../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { FaBed } from 'react-icons/fa';
 
 const PGDetails = () => {
     const { id } = useParams();
@@ -367,12 +368,40 @@ const PGDetails = () => {
                             </p>
                         </div>
 
+                        <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '0.5rem' }}>
+                                Availability
+                            </div>
+                            <div style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                background: pg.availableSlots !== 0 ? '#f0fdf4' : '#fef2f2',
+                                borderRadius: '20px',
+                                border: pg.availableSlots !== 0 ? '1px solid #bbf7d0' : '1px solid #fecaca',
+                                color: pg.availableSlots !== 0 ? '#15803d' : '#b91c1c',
+                                fontWeight: 'bold'
+                            }}>
+                                <FaBed />
+                                <span>{(pg.availableSlots !== undefined && pg.availableSlots !== null) ? pg.availableSlots + ' Left' : 'Available'}</span>
+                                <span style={{ color: '#94a3b8', fontWeight: 'normal' }}>{(pg.totalSlots !== undefined && pg.totalSlots !== null) ? ' / ' + pg.totalSlots + ' Total' : ''}</span>
+                            </div>
+                        </div>
+
                         <button
                             className="btn btn-primary"
-                            style={{ width: '100%', marginBottom: '1rem', padding: '1rem' }}
+                            style={{
+                                width: '100%',
+                                marginBottom: '1rem',
+                                padding: '1rem',
+                                opacity: pg.availableSlots === 0 ? 0.5 : 1,
+                                cursor: pg.availableSlots === 0 ? 'not-allowed' : 'pointer'
+                            }}
                             onClick={handleBook}
+                            disabled={pg.availableSlots === 0}
                         >
-                            {requestAid ? 'Request Sponsorship' : 'Book Now & Pay'}
+                            {pg.availableSlots === 0 ? 'Fully Booked' : (requestAid ? 'Request Sponsorship' : 'Book Now & Pay')}
                         </button>
 
                         <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>

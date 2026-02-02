@@ -4,7 +4,8 @@ import api from '../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { FaMapMarkerAlt, FaMoneyBillWave, FaExternalLinkAlt, FaHome } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaMoneyBillWave, FaExternalLinkAlt, FaHome, FaBed } from 'react-icons/fa';
+import dashboardBg from '../assets/dashboard_bg.jpg';
 
 const Home = () => {
     const [pgs, setPgs] = useState([]);
@@ -143,15 +144,16 @@ const Home = () => {
             {/* Hero Section */}
             <section style={{
                 textAlign: 'center',
-                padding: '4rem 0',
-                background: 'linear-gradient(135deg, rgba(15, 118, 110, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%)',
+                padding: '6rem 0',
+                background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url(${dashboardBg}) no-repeat center center/cover`,
                 borderRadius: 'var(--radius)',
-                marginBottom: '3rem'
+                marginBottom: '3rem',
+                color: 'white'
             }}>
-                <h1 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '1rem', color: 'var(--primary)' }}>
+                <h1 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '1.5rem', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
                     Find Your Perfect Stay
                 </h1>
-                <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+                <p style={{ fontSize: '1.3rem', color: 'rgba(255,255,255,0.9)', marginBottom: '2.5rem', maxWidth: '700px', margin: '0 auto 2.5rem', textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
                     Discover comfortable and affordable Paying Guest accommodations in your preferred area with just a few clicks.
                 </p>
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
@@ -240,9 +242,27 @@ const Home = () => {
                                         <span style={{ fontSize: '0.95rem', lineHeight: '1.4' }}>{pg.address}</span>
                                     </div>
 
-                                    <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                    <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                         {pg.description}
                                     </p>
+
+                                    {/* Availability Badge */}
+                                    <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                                        <FaBed style={{ color: '#64748b' }} />
+                                        {pg.availableSlots !== 0 ? (
+                                            <span style={{
+                                                color: (pg.availableSlots && pg.availableSlots < 3) ? '#e11d48' : '#059669',
+                                                fontWeight: '600',
+                                                background: (pg.availableSlots && pg.availableSlots < 3) ? '#ffe4e6' : '#ecfdf5',
+                                                padding: '0.2rem 0.6rem',
+                                                borderRadius: '12px'
+                                            }}>
+                                                {pg.availableSlots ? `${pg.availableSlots} Beds Available` : 'Available'}
+                                            </span>
+                                        ) : (
+                                            <span style={{ color: '#ef4444', fontWeight: 'bold', background: '#fee2e2', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>Full</span>
+                                        )}
+                                    </div>
 
                                     <div style={{ marginTop: 'auto' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', padding: '0.5rem 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
